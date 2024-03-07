@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Greenhouse",
+    "description": " Temperature control for vegetables",
+    "solved": true
+  },
+  {
+    "id": 2,
+    "name": "Restaurant",
+    "description": "Temperature control for the freezer compartment",
+    "solved": false
+  },
+  {
+    "id": 3,
+    "name": "Zoo",
+    "description": "Temperature control for terrariums and aquariums",
+    "solved": true
+  },
+  {
+    "id": 4,
+    "name": "Farm",
+    "description": "Temperature control for incubatorsTemperature control for incubators",
+    "solved": false
+  },
+  {
+    "id": 5,
+    "name": "Market",
+    "description": "Temperature control for products",
+    "solved": true
+  }
+]
