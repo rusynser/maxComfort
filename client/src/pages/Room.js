@@ -5,17 +5,20 @@ import Buildings from '../building_data.json';
 import Rooms from '../room_data.json';
 import CreateRoomForm from '../components/CreateRoomForm';
 import RoomDetail from '../components/RoomDetail';
+import EditRoomForm from "../components/EditRoomForm";
 
 const RoomPage = () => {
   const { buildingId } = useParams();
   const selectedBuilding = Buildings.find((building) => building.id === buildingId && building !== null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showRoomDetail, setShowRoomDetail] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [rooms, setRooms] = useState([]);
-  const [selectedState, setSelectedState] = useState('all');
-  const [selectedPriority, setSelectedPriority] = useState('all');
+  const [selectedState] = useState('all');
+  const [selectedPriority] = useState('all');
   const [loading, setLoading] = useState(true); // Loading state
+  const [latestValue, setLatestValue] = useState(null);
 
   useEffect(() => {
     // Simulate fetching rooms data
@@ -30,6 +33,10 @@ const RoomPage = () => {
       setLoading(false);
     }, 1000); 
   }, [buildingId]);
+
+  const handleNewData = (newValue) => {
+    setLatestValue(newValue);
+  };
 
   const handleCreateRoom = (newRoom) => {
     setRooms([...rooms, newRoom]);
@@ -54,11 +61,13 @@ const RoomPage = () => {
     setShowRoomDetail(false);
   };
 
-  const handleEditRoom = (room) => {
-    setSelectedRoom(room);
-    setSelectedState(room.state); 
-    setSelectedPriority(room.priority); 
-    setShowCreateModal(true);
+  const handleEditRoom = (editRoom) => {
+    const updatedRooms = rooms.map((room) =>
+      room.id === editRoom.id ? { ...room, ...editRoom } : room
+    );
+    setRooms(updatedRooms);
+    setShowEditModal(false);
+    setSelectedRoom(null);
   };
 
   const handleUpdateRoom = (updatedRoom) => {
@@ -106,13 +115,15 @@ const RoomPage = () => {
               <ListGroup.Item key={room.id}>
                 <p>Name:{room.name}{" "}</p>
                 <p>Description:{room.description}{" "}</p>
+                {latestValue && <p>Current tempature: {latestValue}°</p>}
+                <RoomDetail onNewData={handleNewData} room={room} />
                 <Button variant="info" style={{ fontSize: "1.1rem", padding: "5px 12px" }} onClick={() => handleRoomDetail(room)}>
                   Details
                 </Button>{" "}
                 <Button variant="danger" style={{ fontSize: "1.1rem", padding: "5px 12px" }} onClick={() => handleDeleteRoom(room.id)}>
                   Delete
                 </Button>{" "}
-                <Button variant="warning" style={{ fontSize: "1.1rem", padding: "5px 12px" }} onClick={() => handleEditRoom(room)}>
+                <Button variant="warning" style={{ fontSize: "1.1rem", padding: "5px 12px" }}onClick={() => setShowEditModal(true)}>
                   Edit
                 </Button>
               </ListGroup.Item>
@@ -128,6 +139,17 @@ const RoomPage = () => {
             handleCreateRoom={handleCreateRoom}
             handleUpdateRoom={handleUpdateRoom}
             room={selectedRoom}
+          />
+
+<EditRoomForm
+         show={showEditModal}
+         handleClose={() => {
+           setShowEditModal(false);
+           setSelectedRoom(null);
+         }}
+         handleEditRoom={handleEditRoom}
+         handleUpdateRoom={handleUpdateRoom}
+         Room={selectedRoom}
           />
 
           {selectedRoom && (

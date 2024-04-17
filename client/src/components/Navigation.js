@@ -1,38 +1,29 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function Navigation() {
   const breadcrumbStyle = {
     background: '#40E0D0',
     padding: '25px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  };
-
-  const linkStyle = {
-    color: 'black',
-    textDecoration: 'none',
-    fontSize: '18px',
+    
   };
 
   return (
     <div style={breadcrumbStyle}>
-      <Breadcrumb.Item style={{ listStyle: 'none', margin: '0', padding: 0, marginRight: '5px' }}>
-        <Link to="/" style={linkStyle}>Buildings</Link>
-      </Breadcrumb.Item>
-      <Breadcrumb.Item style={{ listStyle: 'none', margin: '0', padding: 0, marginLeft: '20px' }}>
-        <Link to="/room" style={linkStyle}>Rooms</Link>
-      </Breadcrumb.Item>
-      <div style={{ marginLeft: 'auto', display: 'flex', gap: '20px' }}>
-        <Breadcrumb.Item style={{ listStyle: 'none', margin: '0', padding: 0 }}>
-          <Link to="/registration" style={linkStyle}>Registration</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item style={{ listStyle: 'none', margin: '0', padding: 0 }}>
-          <Link to="/login" style={linkStyle}>Login</Link>
-        </Breadcrumb.Item>
-      </div>
+      <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <Link to="/">
+          <a class="nav-link text-dark" href='/'>Buildings</a>
+          </Link>
+        </li>
+        <Link to="/room"><a class="nav-link text-dark" href='/room'>Rooms</a></Link>
+        <li class="nav-item">
+          <Link to="/registration"><a class="nav-link text-dark" href='/registration'>Registration</a></Link>
+          </li>
+          <li class="nav-item">
+          <Link to="/login"><a class="nav-link text-dark " href='/login'>Login</a></Link>
+          </li>
+      </ul>
     </div>
   );
 }

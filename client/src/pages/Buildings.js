@@ -78,7 +78,7 @@ const Home = () => {
   };
 
   return (
-    <div style={{ background: "#40E0D0", padding: "20px", minHeight: "100vh" }}>
+    <div style={{ background: "#66f2e4", padding: "20px", minHeight: "100vh" }}>
       <h2 className="mb-4">Home Page</h2>
 
       <div className="mb-3">
@@ -107,9 +107,9 @@ const Home = () => {
                     style={{ fontSize: "1.1rem", padding: "5px 12px", marginBottom: "10px", marginRight: "6px" }}
                     onClick={() => toggleSolvedStatus(building.id)}
                   >
-                    {building.solved ? "Solved" : "Unsolved"}
+                    {building.solved ? "Normal tempature" : "Low tempature"}
                   </Button>
-                  <Link to={{ pathname: `/building/${building.id}` }}>
+                  <Link to={{ pathname: `/building/room/${building.id}` }}>
                     <Button
                       variant="info"
                       className="ml-2"
