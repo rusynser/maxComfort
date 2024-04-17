@@ -21,7 +21,7 @@ const RoomDetail = ({ room, show, handleClose, onNewData }) => {
       if (typeof onNewData === 'function') {
       onNewData(newDataPoint.value);
       }
-    }, 1000); 
+    }, 1000); // время появления новой точки в графике
 
     return () => clearInterval(interval);
   }, [data,onNewData]);
