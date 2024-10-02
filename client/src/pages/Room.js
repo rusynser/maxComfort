@@ -1,143 +1,91 @@
 import React, { useState, useEffect } from "react";
-import { Button, ListGroup} from "react-bootstrap";
 import { useParams } from "react-router-dom";
-import Buildings from '../building_data.json';
-import Rooms from '../room_data.json';
-import CreateRoomForm from '../components/CreateRoomForm';
-import RoomDetail from '../components/RoomDetail';
+import axios from "axios";
+import { Button, Alert } from "react-bootstrap";
 
 const RoomPage = () => {
-  const { buildingId } = useParams();
-  const selectedBuilding = Buildings.find((building) => building.id === buildingId && building !== null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showRoomDetail, setShowRoomDetail] = useState(false);
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const [rooms, setRooms] = useState([]);
-  const [selectedState, setSelectedState] = useState('all');
-  const [selectedPriority, setSelectedPriority] = useState('all');
-  const [loading, setLoading] = useState(true); // Loading state
+  const { buildingId } = useParams(); // Get buildingId from the URL
+  const [building, setBuilding] = useState(null);
+  const [temperature, setTemperature] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simulate fetching rooms data
-    setTimeout(() => {
-      if (buildingId) {
-        // Fetch rooms for a specific building
-        setRooms(Rooms.filter((room) => room.buildingId === Number(buildingId)));
-      } else {
-        // Fetch all rooms
-        setRooms(Rooms);
-      }
-      setLoading(false);
-    }, 1000); 
+    console.log("Building ID from URL:", buildingId); // Debug: Check the buildingId
+
+    if (buildingId) {
+      // Fetch the building details using buildingId
+      axios.get(`http://localhost:5002/buildings/${buildingId}`)
+        .then(response => {
+          console.log("Building data fetched:", response.data); // Debug: Log the building data
+          setBuilding(response.data); // Set the building data
+        })
+        .catch(error => {
+          console.error("Error fetching building data:", error); // Debug: Log the error
+          setError("Error fetching building data");
+        });
+
+      // Fetch the current temperature
+      axios.get('http://localhost:5002/getTemp')
+        .then(response => {
+          console.log("Temperature fetched:", response.data.temp); // Debug: Log the temperature
+          setTemperature(response.data.temp); // Set the temperature
+        })
+        .catch(error => {
+          console.error("Error fetching temperature:", error); // Debug: Log the error
+          setError("Error fetching temperature");
+        })
+        .finally(() => {
+          setLoading(false); // Stop loading after both requests complete
+        });
+    }
   }, [buildingId]);
 
-  const handleCreateRoom = (newRoom) => {
-    setRooms([...rooms, newRoom]);
-    setShowCreateModal(false);
-  };
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
-  const handleRoomDetail = (room) => {
-    setSelectedRoom(room);
-    setShowRoomDetail(true);
-  };
-
-  const handleCloseRoomDetail = () => {
-    setShowRoomDetail(false);
-    setSelectedRoom(null);
-  };
-
-  const handleDeleteRoom = (roomId) => {
-    const updatedRooms = rooms.filter((room) => room.id !== roomId);
-    setRooms(updatedRooms);
-    // Close the detail modal if the deleted room was open
-    setSelectedRoom(null);
-    setShowRoomDetail(false);
-  };
-
-  const handleEditRoom = (room) => {
-    setSelectedRoom(room);
-    setSelectedState(room.state); 
-    setSelectedPriority(room.priority); 
-    setShowCreateModal(true);
-  };
-
-  const handleUpdateRoom = (updatedRoom) => {
-    const updatedRooms = rooms.map((room) =>
-      room.id === updatedRoom.id ? { ...room, ...updatedRoom } : room
-    );
-    setRooms(updatedRooms);
-    setShowCreateModal(false);
-    setSelectedRoom(null);
-  };
-
-  const filteredRooms = rooms.filter((room) => {
-    const stateFilter = selectedState === 'all' || room.state === selectedState;
-    const priorityFilter =
-      selectedPriority === 'all' || room.priority === selectedPriority;
-    return stateFilter && priorityFilter;
-  });
-
- 
+  if (error) {
+    return <p>{error}</p>;
+  }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1450px', margin: 'auto' }}>
+    <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto' }}>
       <h2>Room Page</h2>
-      {buildingId && <h5>buildingId {buildingId}</h5>}
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          {selectedBuilding && buildingId && (
-            <>
-              <h3>Building Details</h3>
-              <p>Name: {selectedBuilding.name}</p>
-              <p>Description: {selectedBuilding.description}</p>
-            </>
+
+      {building ? (
+        <div>
+          <h3>Building Name: {building.name}</h3>
+          <p>Description: {building.description}</p>
+
+          {temperature !== null ? (
+            <h3>Current Temperature: {temperature}°C</h3>
+          ) : (
+            <p>Loading temperature...</p>
           )}
+          
+          {temperature > building.temperatureLimit && (
+            <Alert variant="danger">
+              Warning: The temperature exceeds the safe limit of {building.temperatureLimit}°C!
+            </Alert>
+          )}
+
           <Button
-            variant="primary"
-            style={{ fontSize: "1.1rem", padding: "6px 20px", marginRight: "10px", marginLeft: "1300px", }}
-            onClick={() => setShowCreateModal(true)}
-          >
-            Create Room
-          </Button>
-          <ListGroup style={{marginTop:"30px"}}>
-            {filteredRooms.map((room) => (
-              <ListGroup.Item key={room.id}>
-                <p>Name:{room.name}{" "}</p>
-                <p>Description:{room.description}{" "}</p>
-                <Button variant="info" style={{ fontSize: "1.1rem", padding: "5px 12px" }} onClick={() => handleRoomDetail(room)}>
-                  Details
-                </Button>{" "}
-                <Button variant="danger" style={{ fontSize: "1.1rem", padding: "5px 12px" }} onClick={() => handleDeleteRoom(room.id)}>
-                  Delete
-                </Button>{" "}
-                <Button variant="warning" style={{ fontSize: "1.1rem", padding: "5px 12px" }} onClick={() => handleEditRoom(room)}>
-                  Edit
-                </Button>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-
-          <CreateRoomForm
-            show={showCreateModal}
-            handleClose={() => {
-              setShowCreateModal(false);
-              setSelectedRoom(null);
+            onClick={() => {
+              axios.get('http://localhost:5002/getTemp')
+                .then(response => {
+                  setTemperature(response.data.temp);
+                })
+                .catch(error => {
+                  console.error('Error refreshing temperature:', error);
+                });
             }}
-            handleCreateRoom={handleCreateRoom}
-            handleUpdateRoom={handleUpdateRoom}
-            room={selectedRoom}
-          />
-
-          {selectedRoom && (
-            <RoomDetail
-              room={selectedRoom}
-              show={showRoomDetail}
-              handleClose={handleCloseRoomDetail}
-            />
-          )}
-        </>
+          >
+            Refresh Temperature
+          </Button>
+        </div>
+      ) : (
+        <p>Building not found.</p>
       )}
     </div>
   );

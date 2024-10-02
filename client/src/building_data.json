@@ -3,30 +3,27 @@
     "id": 1,
     "name": "Greenhouse",
     "description": " Temperature control for vegetables",
-    "solved": true
+    "temperatureLimit": 30 
   },
   {
     "id": 2,
     "name": "Restaurant",
     "description": "Temperature control for the freezer compartment",
-    "solved": false
+    "temperatureLimit":30
   },
   {
     "id": 3,
     "name": "Zoo",
     "description": "Temperature control for terrariums and aquariums",
-    "solved": true
-  },
+    "temperatureLimit":35 },
   {
     "id": 4,
     "name": "Farm",
     "description": "Temperature control for incubatorsTemperature control for incubators",
-    "solved": false
-  },
+    "temperatureLimit":30  },
   {
     "id": 5,
     "name": "Market",
     "description": "Temperature control for products",
-    "solved": true
-  }
+    "temperatureLimit":30 }
 ]

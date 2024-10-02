@@ -1,85 +1,79 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Card, Modal, Form, Row, Col } from "react-bootstrap";
 import CreateBuilding from "../components/CreateBuilding";
 import { Link } from "react-router-dom";
-import Buildings from "../building_data.json";
 
-const Home = () => {
-  const [buildings, setBuildings] = useState(Buildings);
-  const [filter] = useState("all");
+const Home = ({ user }) => {
+  const [buildings, setBuildings] = useState([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateBuildingId, setUpdateBuildingId] = useState(null);
   const [updateBuildingName, setUpdateBuildingName] = useState("");
   const [updateBuildingDescription, setUpdateBuildingDescription] = useState("");
-  const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const toggleSolvedStatus = (buildingId) => {
-    setBuildings((prevBuildings) => {
-      return prevBuildings.map((building) =>
-        building.id === buildingId
-          ? { ...building, solved: !building.solved }
-          : building
-      );
-    });
-  };
+  // Fetch buildings from the server when component mounts
+  useEffect(() => {
+    fetch('http://localhost:5002/buildings')
+      .then(response => response.json())
+      .then(data => setBuildings(data))
+      .catch(error => console.error('Error fetching buildings:', error));
+  }, []);
 
-  const filteredBuildings = () => {
-    if (filter === "all") {
-      return buildings;
-    } else if (filter === "solved") {
-      return buildings.filter((building) => building.solved);
-    } else if (filter === "unsolved") {
-      return buildings.filter((building) => !building.solved);
+  const handleCreateBuilding = async (newBuilding) => {
+    try {
+      const response = await fetch('http://localhost:5002/buildings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newBuilding),
+      });
+
+      const createdBuilding = await response.json();
+
+      if (response.ok) {
+        setBuildings([...buildings, createdBuilding]);
+      } else {
+        console.error('Failed to create building:', createdBuilding.error);
+      }
+    } catch (error) {
+      console.error('Error creating building:', error);
     }
-    return [];
   };
 
   const handleDelete = (buildingId) => {
-    setBuildings((prevBuildings) =>
-      prevBuildings.filter((building) => building.id !== buildingId)
-    );
-  };
-
-  const handleUpdate = () => {
-    setBuildings((prevBuildings) =>
-      prevBuildings.map((building) =>
-        building.id === updateBuildingId
-          ? {
-              ...building,
-              name: updateBuildingName,
-              description: updateBuildingDescription,
-            }
-          : building
-      )
-    );
-
-    setShowUpdateModal(false);
-  };
-
-  const handleShowCreateModal = () => {
-    setShowCreateModal(true);
+    fetch(`http://localhost:5002/buildings/${buildingId}`, {
+      method: 'DELETE',
+    })
+    .then(() => {
+      setBuildings(buildings.filter(building => building._id !== buildingId));
+    })
+    .catch(error => console.error('Error deleting building:', error));
   };
 
   const handleCloseCreateModal = () => {
     setShowCreateModal(false);
   };
 
-  const handleCreateBuilding = (newBuildingName, newBuildingDescription) => {
-    const newBuilding = {
-      id: buildings.length + 1,
-      name: newBuildingName,
-      description: newBuildingDescription,
-      solved: false,
-    };
+  const handleShowCreateModal = () => {
+    setShowCreateModal(true);
+  };
 
-    setBuildings([...buildings, newBuilding]);
-
-    setShowCreateModal(false);
+  const handleUpdate = () => {
+    // Implement the update logic
+    setShowUpdateModal(false);
   };
 
   return (
     <div style={{ background: "#40E0D0", padding: "20px", minHeight: "100vh" }}>
       <h2 className="mb-4">Home Page</h2>
+
+      {user && (
+        <div style={{ marginBottom: '20px' }}>
+          <h3>Welcome, {user.name}!</h3>
+          <p>Email: {user.email}</p>
+        </div>
+      )}
 
       <div className="mb-3">
         <Button
@@ -92,24 +86,16 @@ const Home = () => {
         </Button>
       </div>
       <div style={{ background: "white", padding: "40px", borderRadius: "3px" }}>
-        <h3 className="mb-3">Example Buildings</h3>
-        
+        <h3 className="mb-3">Buildings</h3>
+
         <Row>
-          {filteredBuildings().map((building, index, array) => (
-            <Col key={building.id} lg={4} className="mb-4">
+          {buildings.map((building) => (
+            <Col key={building._id} lg={4} className="mb-4">
               <Card>
                 <Card.Body>
                   <Card.Title>{building.name}</Card.Title>
                   <Card.Text>{building.description}</Card.Text>
-                  <Button
-                    variant={building.solved ? "success" : "danger"}
-                    className="ml-2"
-                    style={{ fontSize: "1.1rem", padding: "5px 12px", marginBottom: "10px", marginRight: "6px" }}
-                    onClick={() => toggleSolvedStatus(building.id)}
-                  >
-                    {building.solved ? "Solved" : "Unsolved"}
-                  </Button>
-                  <Link to={{ pathname: `/building/${building.id}` }}>
+                  <Link to={{ pathname: `/buildings/${building._id}` }}>
                     <Button
                       variant="info"
                       className="ml-2"
@@ -129,7 +115,7 @@ const Home = () => {
                     }}
                     onClick={() => {
                       setShowUpdateModal(true);
-                      setUpdateBuildingId(building.id);
+                      setUpdateBuildingId(building._id);
                       setUpdateBuildingName(building.name);
                       setUpdateBuildingDescription(building.description);
                     }}
@@ -140,12 +126,11 @@ const Home = () => {
                     variant="danger"
                     className="ml-2"
                     style={{ fontSize: "1.1rem", padding: "5px 12px", marginBottom: "10px" }}
-                    onClick={() => handleDelete(building.id)}
+                    onClick={() => handleDelete(building._id)}
                   >
                     Delete
                   </Button>
                 </Card.Body>
-                <Card.Footer className="text-muted">{/* Any additional info */}</Card.Footer>
               </Card>
             </Col>
           ))}
@@ -153,10 +138,10 @@ const Home = () => {
       </div>
 
       <CreateBuilding
-  show={showCreateModal}
-  handleClose={handleCloseCreateModal}
-  handleCreate={handleCreateBuilding}
-/>
+        show={showCreateModal}
+        handleClose={handleCloseCreateModal}
+        handleCreate={handleCreateBuilding}
+      />
 
       <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)} dialogClassName="modal-90w">
         <Modal.Header closeButton>

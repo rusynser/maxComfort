@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import Breadcrumb from 'react-bootstrap/Breadcrumb';
+import { Link, useNavigate } from 'react-router-dom';
 
-function Navigation() {
+function Navigation({ user, setUser }) {
+  const navigate = useNavigate();
+  
   const breadcrumbStyle = {
     background: '#40E0D0',
     padding: '25px',
@@ -17,21 +18,35 @@ function Navigation() {
     fontSize: '18px',
   };
 
+  const handleLogout = () => {
+    setUser(null); // Clear the user state
+    localStorage.removeItem('token'); // Optional: Clear any stored token
+    navigate('/login')
+  };
+  console.log('User in Navigation:', user);
+
+
   return (
     <div style={breadcrumbStyle}>
-      <Breadcrumb.Item style={{ listStyle: 'none', margin: '0', padding: 0, marginRight: '5px' }}>
+      <div style={{ marginRight: '5px' }}>
         <Link to="/" style={linkStyle}>Buildings</Link>
-      </Breadcrumb.Item>
-      <Breadcrumb.Item style={{ listStyle: 'none', margin: '0', padding: 0, marginLeft: '20px' }}>
-        <Link to="/room" style={linkStyle}>Rooms</Link>
-      </Breadcrumb.Item>
+      </div>
       <div style={{ marginLeft: 'auto', display: 'flex', gap: '20px' }}>
-        <Breadcrumb.Item style={{ listStyle: 'none', margin: '0', padding: 0 }}>
-          <Link to="/registration" style={linkStyle}>Registration</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item style={{ listStyle: 'none', margin: '0', padding: 0 }}>
-          <Link to="/login" style={linkStyle}>Login</Link>
-        </Breadcrumb.Item>
+        {user ? (
+          <div>
+            <span>Welcome {user.name || user.email || 'Guest'}</span> {/* Fallback to email or Guest */}
+            <Link to="/" style={linkStyle} onClick={handleLogout}>Logout</Link>
+          </div>
+        ) : (
+          <>
+            <div>
+              <Link to="/registration" style={linkStyle}>Registration</Link>
+            </div>
+            <div>
+              <Link to="/login" style={linkStyle}>Login</Link>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
