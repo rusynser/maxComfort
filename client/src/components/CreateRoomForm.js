@@ -38,6 +38,7 @@ const CreateRoomForm = ({ show, handleClose, handleCreateRoom }) => {
             <Form.Control
               as="textarea"
               rows={5}
+              maxLength={50}
               value={newRoomDescription}
               onChange={(e) => setNewRoomDescription(e.target.value)}
             />

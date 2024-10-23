@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { Button, Card, Modal, Form, Row, Col } from "react-bootstrap";
+import { Button, Card, Row, Col } from "react-bootstrap";
 import CreateBuilding from "../components/CreateBuilding";
 import { Link } from "react-router-dom";
 import Buildings from "../building_data.json";
+import BuildingDetail from "../components/BuildingDetail";
 
 const Home = () => {
   const [buildings, setBuildings] = useState(Buildings);
   const [filter] = useState("all");
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [updateBuildingId, setUpdateBuildingId] = useState(null);
-  const [updateBuildingName, setUpdateBuildingName] = useState("");
-  const [updateBuildingDescription, setUpdateBuildingDescription] = useState("");
+  const [setShowEditModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showBuildingDetail, setShowBuildingDetail] = useState(false);
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
 
   const toggleSolvedStatus = (buildingId) => {
     setBuildings((prevBuildings) => {
@@ -34,26 +34,31 @@ const Home = () => {
     return [];
   };
 
-  const handleDelete = (buildingId) => {
-    setBuildings((prevBuildings) =>
-      prevBuildings.filter((building) => building.id !== buildingId)
-    );
+  const handleDeleteBuilding = (buildingId) => {
+    const updatedBuildings = buildings.filter((building) => building.id !== buildingId);
+    setBuildings(updatedBuildings);
+    // Close the detail modal if the deleted room was open
+    setSelectedBuilding(null);
+    setShowBuildingDetail(false);
   };
 
-  const handleUpdate = () => {
-    setBuildings((prevBuildings) =>
-      prevBuildings.map((building) =>
-        building.id === updateBuildingId
-          ? {
-              ...building,
-              name: updateBuildingName,
-              description: updateBuildingDescription,
-            }
-          : building
-      )
+  const handleEditBuilding = (editBuilding) => {
+    const updatedBuildings = buildings.map((building) =>
+      building.id === editBuilding.id ? { ...building, ...editBuilding } : building
     );
+    setBuildings(updatedBuildings);
+    setShowEditModal(false);
+    setSelectedBuilding(null);
+  };
 
-    setShowUpdateModal(false);
+  const handleBuildingDetail = (buildings) => {
+    setSelectedBuilding(buildings);
+    setShowBuildingDetail(true);
+  }
+
+  const handleCloseBuildingDetail = () => {
+    setShowBuildingDetail(false);
+    setSelectedBuilding(null);
   };
 
   const handleShowCreateModal = () => {
@@ -79,7 +84,6 @@ const Home = () => {
 
   return (
     <div style={{ background: "#66f2e4", padding: "20px", minHeight: "100vh" }}>
-      <h2 className="mb-4">Home Page</h2>
 
       <div className="mb-3">
         <Button
@@ -92,58 +96,38 @@ const Home = () => {
         </Button>
       </div>
       <div style={{ background: "white", padding: "40px", borderRadius: "3px" }}>
-        <h3 className="mb-3">Example Buildings</h3>
+        <h3 className="mb-3">All Buildings</h3>
         
         <Row>
           {filteredBuildings().map((building, index, array) => (
             <Col key={building.id} lg={4} className="mb-4">
               <Card>
                 <Card.Body>
+                <Link to={{ pathname: `/building/room/${building.id}` }}  style={{ textDecoration: 'none', color: 'inherit' , }}>
                   <Card.Title>{building.name}</Card.Title>
                   <Card.Text>{building.description}</Card.Text>
+                  </Link>
                   <Button
                     variant={building.solved ? "success" : "danger"}
                     className="ml-2"
-                    style={{ fontSize: "1.1rem", padding: "5px 12px", marginBottom: "10px", marginRight: "6px" }}
+                    style={{ fontSize: "1.1rem", padding: "5px 12px", marginTop: "10px", marginRight: "6px" }}
                     onClick={() => toggleSolvedStatus(building.id)}
                   >
                     {building.solved ? "Normal tempature" : "Low tempature"}
                   </Button>
-                  <Link to={{ pathname: `/building/room/${building.id}` }}>
-                    <Button
-                      variant="info"
-                      className="ml-2"
-                      style={{ fontSize: "1.1rem", padding: "5px 12px", marginBottom: "10px", marginRight: "7px" }}
-                    >
-                      Detail
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="warning"
-                    className="ml-2"
-                    style={{
-                      fontSize: "1.1rem",
-                      padding: "5px 12px",
-                      marginBottom: "10px",
-                      marginRight: "5px",
-                    }}
+                  <button style={{border:"none", background:"none",marginTop: '10px'}}
                     onClick={() => {
-                      setShowUpdateModal(true);
-                      setUpdateBuildingId(building.id);
-                      setUpdateBuildingName(building.name);
-                      setUpdateBuildingDescription(building.description);
-                    }}
-                  >
-                    Update
-                  </Button>
-                  <Button
-                    variant="danger"
-                    className="ml-2"
-                    style={{ fontSize: "1.1rem", padding: "5px 12px", marginBottom: "10px" }}
-                    onClick={() => handleDelete(building.id)}
-                  >
-                    Delete
-                  </Button>
+                      handleBuildingDetail(building)
+                    }}>
+                  <img 
+        src="/settings.png" 
+        width="37" 
+        height="37" 
+        className="d-inline-block align-top" 
+        alt="Home" 
+      />
+      </button>
+                  
                 </Card.Body>
                 <Card.Footer className="text-muted">{/* Any additional info */}</Card.Footer>
               </Card>
@@ -158,48 +142,15 @@ const Home = () => {
   handleCreate={handleCreateBuilding}
 />
 
-      <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)} dialogClassName="modal-90w">
-        <Modal.Header closeButton>
-          <Modal.Title>Update Building</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3" controlId="updateBuildingName">
-              <Form.Label>Building Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={updateBuildingName}
-                onChange={(e) => setUpdateBuildingName(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="updateBuildingDescription">
-              <Form.Label>Building Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={updateBuildingDescription}
-                onChange={(e) => setUpdateBuildingDescription(e.target.value)}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowUpdateModal(false)}
-            style={{ fontSize: "1.1rem", padding: "10px 20px" }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleUpdate}
-            style={{ fontSize: "1.1rem", padding: "10px 20px" }}
-          >
-            Update
-          </Button>
-        </Modal.Footer>
-      </Modal>
+<BuildingDetail
+              building={selectedBuilding}
+              show={showBuildingDetail}
+              handleClose={handleCloseBuildingDetail}
+              onDeleteBuilding={handleDeleteBuilding}
+              onEditBuilding={handleEditBuilding}
+            />
+
+      
     </div>
   );
 };

@@ -9,7 +9,7 @@
     "id": 2,
     "name": "Restaurant",
     "description": "Temperature control for the freezer compartment",
-    "solved": false
+    "solved": true
   },
   {
     "id": 3,
@@ -20,8 +20,8 @@
   {
     "id": 4,
     "name": "Farm",
-    "description": "Temperature control for incubatorsTemperature control for incubators",
-    "solved": false
+    "description": "Temperature control for incubators",
+    "solved": true
   },
   {
     "id": 5,

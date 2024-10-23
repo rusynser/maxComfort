@@ -38,6 +38,7 @@ const EditRoomForm = ({ show, handleClose, handleEditRoom }) => {
             <Form.Control
               as="textarea"
               rows={5}
+              maxLength={50}
               value={editRoomDescription}
               onChange={(e) => setEditRoomDescription(e.target.value)}
             />

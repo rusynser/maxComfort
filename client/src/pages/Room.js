@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, ListGroup} from "react-bootstrap";
+import {Row, Card, Col} from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import Buildings from '../building_data.json';
 import Rooms from '../room_data.json';
@@ -89,9 +89,7 @@ const RoomPage = () => {
  
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1450px', margin: 'auto' }}>
-      <h2>Room Page</h2>
-      {buildingId && <h5>buildingId {buildingId}</h5>}
+    <div style={{ background: "#66f2e4",padding: "20px", minHeight: "100vh" }}>
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -103,32 +101,35 @@ const RoomPage = () => {
               <p>Description: {selectedBuilding.description}</p>
             </>
           )}
-          <Button
-            variant="primary"
-            style={{ fontSize: "1.1rem", padding: "6px 20px", marginRight: "10px", marginLeft: "1300px", }}
+          <button
+          type="button"
+            class="btn btn-light"
+            style={{ fontSize: "1.1rem", padding: "20px 20px", marginLeft:"0px", marginBottom:"20px"  }}
             onClick={() => setShowCreateModal(true)}
           >
             Create Room
-          </Button>
-          <ListGroup style={{marginTop:"30px"}}>
+          </button>
+          <div style={{ background: "white", padding: "40px", borderRadius: "3px" }}>
+          <h2>Room Page</h2>
+          {buildingId && <h5>buildingId {buildingId}</h5>}
+          <Row className="g-4"  >
             {filteredRooms.map((room) => (
-              <ListGroup.Item key={room.id}>
-                <p>Name:{room.name}{" "}</p>
-                <p>Description:{room.description}{" "}</p>
-                {latestValue && <p>Current tempature: {latestValue}°</p>}
+               <Col key={room.id} lg={4} className="mb-7">
+                 <Card>
+                 <Card.Body>
+                 <div  style={{ cursor: 'pointer' }} onClick={() => handleRoomDetail(room)}>
+                 <Card.Title>  <span style={{ fontWeight: 'bold' }}>Name:</span>{room.name}{" "}</Card.Title>
+                 <Card.Text> <span style={{ fontWeight: 'bold' }}>Description:</span>{room.description}{" "}</Card.Text>
+                {latestValue &&  <Card.Text style={{ marginTop: '-10px' }}><span style={{ fontWeight: 'bold' }}>Current tempature:</span> {latestValue}°</Card.Text>}
                 <RoomDetail onNewData={handleNewData} room={room} />
-                <Button variant="info" style={{ fontSize: "1.1rem", padding: "5px 12px" }} onClick={() => handleRoomDetail(room)}>
-                  Details
-                </Button>{" "}
-                <Button variant="danger" style={{ fontSize: "1.1rem", padding: "5px 12px" }} onClick={() => handleDeleteRoom(room.id)}>
-                  Delete
-                </Button>{" "}
-                <Button variant="warning" style={{ fontSize: "1.1rem", padding: "5px 12px" }}onClick={() => setShowEditModal(true)}>
-                  Edit
-                </Button>
-              </ListGroup.Item>
+                </div>
+                </Card.Body>
+                <Card.Footer className="text-muted">{/* Any additional info */}</Card.Footer>
+                </Card>
+              </Col>
             ))}
-          </ListGroup>
+            </Row>
+            </div>
 
           <CreateRoomForm
             show={showCreateModal}
@@ -157,6 +158,8 @@ const RoomPage = () => {
               room={selectedRoom}
               show={showRoomDetail}
               handleClose={handleCloseRoomDetail}
+              onDeleteRoom={handleDeleteRoom} // Передача функции удаления
+              onEditRoom={handleEditRoom}
             />
           )}
         </>

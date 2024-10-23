@@ -10,20 +10,41 @@ function Navigation() {
 
   return (
     <div style={breadcrumbStyle}>
-      <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <Link to="/">
-          <a class="nav-link text-dark" href='/'>Buildings</a>
-          </Link>
-        </li>
-        <Link to="/room"><a class="nav-link text-dark" href='/room'>Rooms</a></Link>
-        <li class="nav-item">
-          <Link to="/registration"><a class="nav-link text-dark" href='/registration'>Registration</a></Link>
-          </li>
-          <li class="nav-item">
-          <Link to="/login"><a class="nav-link text-dark " href='/login'>Login</a></Link>
-          </li>
-      </ul>
+    <ul className="nav nav-pills">
+    <li className='nav-item'>
+    <Link to="/">
+    <img 
+        src="/logo500.png" 
+        width="60" 
+        height="48" 
+        className="d-inline-block align-top" 
+        alt="Home" 
+        style={{ marginRight: '0px'}}
+      />
+      </Link>
+    </li>
+    <li className="ms-auto d-flex"> {/* Flexbox для выравнивания Registration и Login */}
+      <li className='nav-item'>
+    <Link to="/">
+      <img 
+        src="/home.png" 
+        width="37" 
+        height="37" 
+        className="d-inline-block align-top" 
+        alt="Home" 
+        style={{ marginRight: '20px'}}
+      />
+    </Link>
+    </li>
+ 
+    <li className="nav-item">
+      <Link to="/registration" className="btn btn-outline-dark"  style={{ marginRight: '10px'}}>Registration</Link>
+    </li>
+    <li className="nav-item">
+      <Link to="/login" className="btn btn-outline-dark">Login</Link>
+    </li>
+  </li>
+</ul>
     </div>
   );
 }

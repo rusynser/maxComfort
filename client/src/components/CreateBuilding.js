@@ -35,6 +35,7 @@ function CreateBuilding({ show, handleClose, handleCreate }) {
               rows={5}
               value={newBuildingDescription}
               onChange={(e) => setNewBuildingDescription(e.target.value)}
+              maxLength={50}
               style={{ fontSize: '1.2rem', height: '100px' }}
             />
           </Form.Group>
